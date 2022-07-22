@@ -1,19 +1,17 @@
-import sys
 import os
 import codecs
 from sys import *
 import random
 from tqdm import tqdm
-from torch.utils.data import Dataset, DataLoader
-from torch.nn.utils.rnn import pad_sequence
-import numpy as np
-from transformers import AutoTokenizer
 import torch
-import torch.nn.functional as F
-#from rank_bm25 import BM25Okapi
 
 ATTR_TO_SPECIAL_TOKEN_BART = {'eos_token': '<eos>', 'pad_token': '<pad>', 'sep_token': '<sep>', 'cls_token': '<bos>', 'additional_special_tokens': ['<agent>', '<user>']}
 SPECIAL_TOKENS_BART = ["<eos>", "<cls>", "<sep>", "<pad>", '<agent>', '<user>']
+
+
+################################################################################
+##### Based on https://github.com/ChuanMeng/DukeNet/dataset/Utils_DukeNet.py 
+################################################################################
 
 
 def load_answer(file):
@@ -224,13 +222,14 @@ def get_wowdk_data(args):
 											args.data_path + dataset + '.query')
 
 		train_samples, dev_seen_samples, dev_unseen_samples, test_seen_samples, test_unseen_samples = split_data(dataset, args.data_path + dataset + '.split', samples)
-		torch.save(query, args.data_path + 'query_DukeNet.pkl')
-		torch.save(passage, args.data_path + 'passage_DukeNet.pkl')
-		torch.save(train_samples, args.data_path + 'train_DukeNet.pkl')
-		torch.save(dev_seen_samples, args.data_path + 'dev_seen_DukeNet.pkl')
-		torch.save(dev_unseen_samples, args.data_path + 'dev_unseen_DukeNet.pkl')	
-		torch.save(test_seen_samples, args.data_path + 'test_seen_DukeNet.pkl')
-		torch.save(test_unseen_samples, args.data_path + 'test_unseen_DukeNet.pkl')
+		if args.is_master:
+			torch.save(query, args.data_path + 'query_DukeNet.pkl')
+			torch.save(passage, args.data_path + 'passage_DukeNet.pkl')
+			torch.save(train_samples, args.data_path + 'train_DukeNet.pkl')
+			torch.save(dev_seen_samples, args.data_path + 'dev_seen_DukeNet.pkl')
+			torch.save(dev_unseen_samples, args.data_path + 'dev_unseen_DukeNet.pkl')	
+			torch.save(test_seen_samples, args.data_path + 'test_seen_DukeNet.pkl')
+			torch.save(test_unseen_samples, args.data_path + 'test_unseen_DukeNet.pkl')
 
 	return train_samples, dev_seen_samples, dev_unseen_samples, test_seen_samples, test_unseen_samples, query, passage
 	

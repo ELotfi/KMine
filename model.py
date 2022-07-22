@@ -2,10 +2,8 @@ import torch
 import entmax
 import shutil, os
 from torch import nn
-from dataclasses import dataclass
 from torch.nn import CrossEntropyLoss
-from data import ATTR_TO_SPECIAL_TOKEN_BART, SPECIAL_TOKENS_BART
-from transformers.modeling_outputs import Seq2SeqLMOutput, BaseModelOutput
+from data import ATTR_TO_SPECIAL_TOKEN_BART
 from transformers import BartForConditionalGeneration, AutoTokenizer
 
 

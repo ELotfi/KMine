@@ -4,13 +4,12 @@ import torch
 import os
 import argparse
 from torch.cuda.amp import GradScaler, autocast
-from transformers import AutoConfig, set_seed , AdamW,  get_linear_schedule_with_warmup
+from transformers import set_seed , AdamW,  get_linear_schedule_with_warmup
 from data import get_wow_loaders
 from model import KMine
 from utils import Trackers, eval_epoch, inference
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel
-from torch.utils.data.distributed import DistributedSampler
 from datetime import timedelta
 
 
@@ -96,15 +95,16 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--model_name_or_path", default='facebook/bart-base')
 	parser.add_argument("--load_from_checkpoint", default=False)
-	parser.add_argument("--checkpoint_path", default='outputs/bart-base_unsup_all/epoch_8')
+	parser.add_argument("--checkpoint_path", default=None)
 	parser.add_argument("--output_path", default='outputs/')
 	parser.add_argument("--generation_path", default='outputs/results/')
-	parser.add_argument("--data_path", default='data/WOW_duke/')
+	parser.add_argument("--data_path", default='data/')
+
 	parser.add_argument('--num_history', default= 3, type=int)
 	parser.add_argument('--candidate_max_length', default= 32, type=int)
 	parser.add_argument('--utterance_max_length', default= 48, type=int)
 	parser.add_argument('--generation_max_length', default= 48, type=int)
-	parser.add_argument('--num_candidates', default= 56, type=int)	
+	parser.add_argument('--num_candidates', default= 50, type=int)	
 	parser.add_argument('--data_mode', default= 'all', choices=['all', 'only_with_kn'])	
 	parser.add_argument('--num_workers', type=int, default=8)
 
@@ -129,7 +129,7 @@ if __name__ == "__main__":
 	parser.add_argument('--max_function', default= 'softmax')	
 
 	parser.add_argument('--epochs', default= 8, type=int)
-	parser.add_argument('--warmup_steps', default= 50, type=int)
+	parser.add_argument('--warmup_steps', default= 100, type=int)
 	parser.add_argument('--train_batch_size', default= 2, type=int)
 	parser.add_argument('--eval_batch_size', default= 12, type=int)
 	parser.add_argument('--infer_batch_size', default= 1, type=int)
@@ -138,7 +138,8 @@ if __name__ == "__main__":
 	parser.add_argument('--ratn', default= [1,5])
 	parser.add_argument("--fp16", default=True)
 	parser.add_argument('--lr_sel', type=float, default=5e-4)
-	parser.add_argument('--lr_gen', type=float, default=2e-5)	
+	parser.add_argument('--lr_gen', type=float, default=2e-5)
+
 	parser.add_argument('--seed', default= 42, type=int)
 	parser.add_argument("--device", default='cuda')
 	parser.add_argument("--distributed", action="store_true")
